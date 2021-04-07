@@ -13,6 +13,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Media;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 
@@ -121,7 +122,7 @@ namespace IliumManager.Components
         /// <summary>
         ///     To Process Ticks
         /// </summary>
-        private void Tick()
+        private async void Tick()
         {
 
             for (int i = 0; i < BallAmount; i++)
@@ -132,12 +133,12 @@ namespace IliumManager.Components
                 if (this.Balls[i].X < 0)
                 {
                     this.BallsVx[i] = -this.BallsVx[i];
-                    Boing(i);
+                    await Boing(i);
                 }
                 else if (this.Balls[i].X + BallWidth > this.ClientSize.Width)
                 {
                     this.BallsVx[i] = -this.BallsVx[i];
-                    Boing(i);
+                    await Boing(i);
                 }
 
                 //Ball's new Y position
@@ -146,20 +147,19 @@ namespace IliumManager.Components
                 if (this.Balls[i].Y < 0)
                 {
                     this.BallsVy[i] = -this.BallsVy[i];
-                    Boing(i);
+                    await Boing(i);
                 }
                 else if (this.Balls[i].Y + BallHeight > this.ClientSize.Height)
                 {
                     this.BallsVy[i] = -this.BallsVy[i];
-                    Boing(i);
+                    await Boing(i);
                 }
 
                 //Collision with Gate
                 if (this.Balls[i].IntersectsWith(Gate))
                 {
                     this.BallsVx[i] = -this.BallsVx[i];
-
-                    Boing(i);
+                    await Boing(i);
                 }
             }
 
@@ -171,16 +171,18 @@ namespace IliumManager.Components
         /// <summary>
         ///     Play the boing sound file resource.
         /// </summary>
-        private void Boing(int i)
+        private Task Boing(int i)
         {
-            using (var player = new SoundPlayer(BounceBall.Properties.Resources.boing))
+            return Task.Factory.StartNew(() =>
             {
-                player.Play();
-                //return;
-                //player.LoadAsync();
-                var color = Color.FromArgb((byte) this.RandomNumber.Next(), (byte) this.RandomNumber.Next(), (byte)this.RandomNumber.Next());
-                this.BallColors[i] = new SolidBrush(color);
-            }
+                using (var player = new SoundPlayer(BounceBall.Properties.Resources.boing))
+                {
+                    player.Play();
+                    var color = Color.FromArgb((byte)this.RandomNumber.Next(), (byte)this.RandomNumber.Next(), (byte)this.RandomNumber.Next());
+                    this.BallColors[i] = new SolidBrush(color);
+                }
+            });
+            
         }
 
         //----------------------------------------------------------------------------------------------------------------//
